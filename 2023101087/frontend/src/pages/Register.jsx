@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { registerUser } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -18,12 +20,12 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await registerUser(formData);
-      alert('Registration successful!');
-      console.log(response.data);
+      await registerUser(formData);
+      alert('Registration successful! Please login.');
+      navigate('/login');
     } catch (error) {
-      console.error('Registration failed:', error.response?.data?.message || error.message);
-      alert('Registration failed. Please check the inputs.');
+      console.error('Error:', error.response?.data?.message || error.message);
+      alert('Registration failed. Please check your inputs.');
     }
   };
 
