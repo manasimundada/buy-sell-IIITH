@@ -76,10 +76,30 @@ exports.login = async (req, res) => {
   }
 };
 
+// Validate Token
+exports.validateToken = (req, res) => {
+  const token = req.header('Authorization').replace('Bearer ', '');
+  console.log('Token to validate:', token);
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+    res.status(200).json({ message: 'Token is valid' });
+  } catch (err) {
+    console.error('Error validating token:', err);
+    res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
 // Get User Profile (Protected Route)
 exports.getProfile = async (req, res) => {
+  console.log('\ninside getProfile\n');
   try {
-    const user = await User.findById(req.user.id).select('-password'); // Exclude password from response
+    console.log('User ID:', req.user.user.id);
+    const user = await User.findById(req.user.user.id).select('-password'); // Exclude password from response
+    console.log('User:', user);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -88,5 +108,23 @@ exports.getProfile = async (req, res) => {
   } catch (err) {
     console.error('Error fetching profile:', err.message);
     res.status(500).json({ message: 'Server error fetching profile' });
+  }
+};
+
+// Refresh Token
+exports.refreshToken = (req, res) => {
+  const { token } = req.body;
+  console.log('Token to refresh:', token);
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const newToken = jwt.sign({ user: { id: decoded.user.id } }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token: newToken });
+  } catch (err) {
+    console.error('Error refreshing token:', err);
+    res.status(401).json({ message: 'Invalid token' });
   }
 };
