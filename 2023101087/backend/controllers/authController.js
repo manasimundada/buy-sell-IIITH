@@ -128,3 +128,28 @@ exports.refreshToken = (req, res) => {
     res.status(401).json({ message: 'Invalid token' });
   }
 };
+
+// Update User Profile
+exports.updateProfile = async (req, res) => {
+  const { firstName, lastName, email, age, contactNumber } = req.body;
+
+  try {
+    const user = await User.findById(req.user.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.email = email || user.email;
+    user.age = age || user.age;
+    user.contactNumber = contactNumber || user.contactNumber;
+
+    await user.save();
+
+    res.json({ message: 'Profile updated successfully' });
+  } catch (err) {
+    console.error('Error updating profile:', err.message);
+    res.status(500).json({ message: 'Server error updating profile' });
+  }
+};

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { logout, isTokenValid, refreshToken } from '../services/auth';
+import { updateUserProfile } from '../services/api';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -45,9 +46,7 @@ const Profile = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.put('http://localhost:3000/api/auth/profile', editFormData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await updateUserProfile(editFormData, token);
       alert('Profile updated successfully!');
       setIsEditing(false);
       setUser({ ...user, ...editFormData });

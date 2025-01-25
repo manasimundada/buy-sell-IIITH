@@ -9,3 +9,8 @@ export const registerUser = (userData) => API.post('/register', userData);
 
 // Login user
 export const loginUser = (userData) => API.post('/login', userData);
+
+// Update user profile
+export const updateUserProfile = (userData, token) => API.put('/profile', userData, {
+  headers: { Authorization: `Bearer ${token}` },
+});
